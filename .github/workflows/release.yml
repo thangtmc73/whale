@@ -3,7 +3,8 @@ name: Release
 on:
   push:
     tags:
-      - 'v*.*.*'
+      - 'v*'
+      - '[0-9]+.[0-9]+.[0-9]+*'
 
 jobs:
   build-release:
@@ -66,6 +67,15 @@ jobs:
         shasum -a 256 Whale-${{ github.ref_name }}.zip >> checksums.txt
         cd ..
     
+    - name: Check if prerelease
+      id: check_prerelease
+      run: |
+        if [[ "${{ github.ref_name }}" =~ (alpha|beta|rc|dev|preview) ]]; then
+          echo "is_prerelease=true" >> $GITHUB_OUTPUT
+        else
+          echo "is_prerelease=false" >> $GITHUB_OUTPUT
+        fi
+    
     - name: Create Release
       uses: softprops/action-gh-release@v1
       with:
@@ -93,6 +103,6 @@ jobs:
           ### Checksums
           See `checksums.txt` for SHA-256 hashes.
         draft: false
-        prerelease: false
+        prerelease: ${{ steps.check_prerelease.outputs.is_prerelease }}
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
