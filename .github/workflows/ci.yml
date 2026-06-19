@@ -2,9 +2,12 @@ name: CI
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [ develop, master ]
   pull_request:
-    branches: [ main, develop ]
+    branches: [ develop, master ]
+
+permissions:
+  contents: read
 
 jobs:
   build-and-test:
@@ -12,7 +15,7 @@ jobs:
     
     steps:
     - name: Checkout code
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
     
     - name: Select Xcode version
       run: sudo xcode-select -s /Applications/Xcode_15.2.app/Contents/Developer
