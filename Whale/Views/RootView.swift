@@ -25,7 +25,7 @@ struct RootView: View {
             if let sessionViewModel = appViewModel.selectedSessionViewModel {
                 SessionView(viewModel: sessionViewModel)
                     .inspector(isPresented: $inspectorPresented) {
-                        SessionInspectorView(viewModel: sessionViewModel, gitBranch: appViewModel.currentGitBranch)
+                        SessionInspectorView(viewModel: sessionViewModel)
                             .inspectorColumnWidth(min: 220, ideal: 260, max: 320)
                     }
             } else {
@@ -86,7 +86,6 @@ struct RootView: View {
             }
         }
         .navigationTitle(appViewModel.selectedProject?.displayName ?? "Whale")
-        .navigationSubtitle(appViewModel.currentGitBranch ?? "")
         .frame(minWidth: 720, minHeight: 480)
         .background(WhaleTheme.Color.background)
         .tint(WhaleTheme.Color.secondary)

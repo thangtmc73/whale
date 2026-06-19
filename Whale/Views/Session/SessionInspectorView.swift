@@ -5,7 +5,6 @@ import SwiftUI
 /// affordances, which simply call back into the same SessionViewModel logic the main toolbar uses.
 struct SessionInspectorView: View {
     var viewModel: SessionViewModel
-    let gitBranch: String?
 
     var body: some View {
         ScrollView {
@@ -31,14 +30,6 @@ struct SessionInspectorView: View {
                         metadataRow("Created", value: viewModel.session.createdAt.formatted(date: .abbreviated, time: .shortened))
                         metadataRow("Last activity", value: viewModel.session.lastActivityAt.formatted(date: .abbreviated, time: .shortened))
                         metadataRow("CLI session", value: viewModel.session.cliSessionID)
-                    }
-                }
-
-                if let gitBranch, !gitBranch.isEmpty {
-                    section("Git branch") {
-                        Text(gitBranch)
-                            .font(WhaleTheme.Typography.mono())
-                            .foregroundStyle(WhaleTheme.Color.secondary)
                     }
                 }
             }
