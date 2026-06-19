@@ -82,10 +82,34 @@ actor ProcessPathResolver {
         let resolved = try await resolve(executableNames: names)
         guard let name = names.first(where: { resolved.executablePaths[$0] != nil }),
               let path = resolved.executablePaths[name] else {
-            return nil
+            return fallbackResolve(of: names)
         }
         var env = ProcessInfo.processInfo.environment
         env["PATH"] = resolved.path
         return (path, env)
+    }
+    
+    /// Fallback: check common installation locations directly
+    private func fallbackResolve(of names: [String]) -> (path: String, environment: [String: String])? {
+        let homeDir = FileManager.default.homeDirectoryForCurrentUser.path
+        let commonPaths = [
+            "\(homeDir)/.local/bin",
+            "/usr/local/bin",
+            "/opt/homebrew/bin",
+            "/usr/bin",
+        ]
+        
+        for name in names {
+            for dir in commonPaths {
+                let fullPath = "\(dir)/\(name)"
+                if FileManager.default.isExecutableFile(atPath: fullPath) {
+                    var env = ProcessInfo.processInfo.environment
+                    env["PATH"] = commonPaths.joined(separator: ":")
+                    return (fullPath, env)
+                }
+            }
+        }
+        
+        return nil
     }
 }
