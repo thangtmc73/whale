@@ -1,0 +1,98 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+jobs:
+  build-release:
+    runs-on: macos-14
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Select Xcode version
+      run: sudo xcode-select -s /Applications/Xcode_15.2.app/Contents/Developer
+    
+    - name: Install XcodeGen
+      run: brew install xcodegen
+    
+    - name: Generate Xcode project
+      run: xcodegen
+    
+    - name: Create dist directory
+      run: mkdir -p dist
+    
+    - name: Build Release
+      run: |
+        xcodebuild clean archive \
+          -project Whale.xcodeproj \
+          -scheme Whale \
+          -configuration Release \
+          -archivePath dist/Whale.xcarchive \
+          CODE_SIGN_IDENTITY="" \
+          CODE_SIGNING_REQUIRED=NO
+    
+    - name: Export app
+      run: |
+        cp -R dist/Whale.xcarchive/Products/Applications/Whale.app dist/
+    
+    - name: Create DMG
+      run: |
+        brew install create-dmg
+        create-dmg \
+          --volname "Whale" \
+          --window-pos 200 120 \
+          --window-size 800 400 \
+          --icon-size 100 \
+          --icon "Whale.app" 200 190 \
+          --hide-extension "Whale.app" \
+          --app-drop-link 600 185 \
+          "dist/Whale-${{ github.ref_name }}.dmg" \
+          "dist/Whale.app" || true
+    
+    - name: Create ZIP archive
+      run: |
+        cd dist
+        zip -r "Whale-${{ github.ref_name }}.zip" Whale.app
+        cd ..
+    
+    - name: Generate checksums
+      run: |
+        cd dist
+        shasum -a 256 Whale-${{ github.ref_name }}.dmg > checksums.txt || true
+        shasum -a 256 Whale-${{ github.ref_name }}.zip >> checksums.txt
+        cd ..
+    
+    - name: Create Release
+      uses: softprops/action-gh-release@v1
+      with:
+        files: |
+          dist/Whale-${{ github.ref_name }}.dmg
+          dist/Whale-${{ github.ref_name }}.zip
+          dist/checksums.txt
+        body: |
+          ## Whale ${{ github.ref_name }}
+          
+          ### Installation
+          
+          **Option 1: DMG (Recommended)**
+          1. Download `Whale-${{ github.ref_name }}.dmg`
+          2. Open the DMG and drag Whale to Applications
+          
+          **Option 2: ZIP**
+          1. Download `Whale-${{ github.ref_name }}.zip`
+          2. Extract and move Whale.app to Applications
+          
+          ### Requirements
+          - macOS 14.0 or later
+          - At least one AI CLI tool: `claude`, `cursor-agent`, or `codex`
+          
+          ### Checksums
+          See `checksums.txt` for SHA-256 hashes.
+        draft: false
+        prerelease: false
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

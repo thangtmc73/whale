@@ -1,0 +1,39 @@
+name: Whale
+options:
+  bundleIdPrefix: com.thangminhtran
+  createIntermediateGroups: true
+settings:
+  base:
+    MACOSX_DEPLOYMENT_TARGET: "14.0"
+    SWIFT_VERSION: "5.0"
+    DEVELOPMENT_TEAM: ""
+    CODE_SIGN_STYLE: Automatic
+    ENABLE_HARDENED_RUNTIME: NO
+targets:
+  Whale:
+    type: application
+    platform: macOS
+    deploymentTarget: "14.0"
+    sources:
+      - path: Whale
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.thangminhtran.whale
+        GENERATE_INFOPLIST_FILE: YES
+        INFOPLIST_KEY_NSHumanReadableCopyright: ""
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+    info:
+      path: Generated/Whale-Info.plist
+      properties:
+        LSUIElement: false
+  WhaleTests:
+    type: bundle.unit-test
+    platform: macOS
+    deploymentTarget: "14.0"
+    sources:
+      - path: WhaleTests
+    dependencies:
+      - target: Whale
+    settings:
+      base:
+        GENERATE_INFOPLIST_FILE: YES
