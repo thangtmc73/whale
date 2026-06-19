@@ -77,9 +77,23 @@ brew install xcodegen
 # Generate the Xcode project
 xcodegen
 
-# Open in Xcode
+# Build release (creates DMG and ZIP in dist/)
+make release
+
+# Or build and run debug version
+make run
+
+# Or open in Xcode
 open Whale.xcodeproj
 ```
+
+Available make commands:
+- `make build` - Build debug version
+- `make release` - Build release version with DMG and ZIP
+- `make run` - Build and run debug version
+- `make test` - Run unit tests
+- `make clean` - Clean build artifacts
+- `make install` - Install release build to /Applications
 
 ## Usage
 
