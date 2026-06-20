@@ -14,8 +14,8 @@ struct DiffCodeBlock: View {
 
         var foreground: Color {
             switch self {
-            case .addition: return Color(hex: 0x86EFAC)
-            case .removal: return Color(hex: 0xFCA5A5)
+            case .addition: return WhaleTheme.Color.diffAddition
+            case .removal: return WhaleTheme.Color.diffRemoval
             case .hunkHeader: return WhaleTheme.Color.secondary
             case .fileHeader: return WhaleTheme.Color.muted
             case .context: return WhaleTheme.Color.text.opacity(0.85)
@@ -59,7 +59,7 @@ struct DiffCodeBlock: View {
             }
             .padding(.horizontal, WhaleTheme.Spacing.md)
             .padding(.vertical, 8)
-            .background(Color.white.opacity(0.03))
+            .background(WhaleTheme.Color.codeHeader)
 
             Divider().overlay(WhaleTheme.Color.border)
 
@@ -79,7 +79,7 @@ struct DiffCodeBlock: View {
                 .padding(.vertical, 6)
             }
         }
-        .background(Color.black.opacity(0.28))
+        .background(WhaleTheme.Color.codeBackground)
         .clipShape(RoundedRectangle(cornerRadius: WhaleTheme.Radius.small))
         .overlay(RoundedRectangle(cornerRadius: WhaleTheme.Radius.small).strokeBorder(WhaleTheme.Color.border, lineWidth: 1))
         .textSelection(.enabled)

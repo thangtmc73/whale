@@ -8,7 +8,6 @@ struct WhaleApp: App {
     var body: some Scene {
         WindowGroup {
             RootView(appViewModel: appViewModel)
-                .preferredColorScheme(.dark)
         }
         .commands {
             CommandGroup(after: .newItem) {

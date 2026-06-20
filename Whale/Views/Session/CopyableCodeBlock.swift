@@ -31,7 +31,7 @@ struct CopyableCodeBlock: View {
             }
             .padding(.horizontal, WhaleTheme.Spacing.md)
             .padding(.vertical, 8)
-            .background(SwiftUI.Color.white.opacity(0.03))
+            .background(WhaleTheme.Color.codeHeader)
 
             Divider().overlay(WhaleTheme.Color.border)
 
@@ -43,7 +43,7 @@ struct CopyableCodeBlock: View {
                     .padding(WhaleTheme.Spacing.md)
             }
         }
-        .background(SwiftUI.Color.black.opacity(0.28))
+        .background(WhaleTheme.Color.codeBackground)
         .clipShape(RoundedRectangle(cornerRadius: WhaleTheme.Radius.small))
         .overlay(RoundedRectangle(cornerRadius: WhaleTheme.Radius.small).strokeBorder(WhaleTheme.Color.border, lineWidth: 1))
     }
