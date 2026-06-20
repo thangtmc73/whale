@@ -41,8 +41,8 @@ struct SessionView: View {
                     pendingProviderSwitch = provider
                 },
                 onSelectModel: { viewModel.switchModel(to: $0) },
-                onSend: { prompt in
-                    viewModel.send(prompt: prompt)
+                onSend: { prompt, attachments in
+                    viewModel.send(prompt: prompt, attachments: attachments)
                 },
                 onCancel: viewModel.cancel
             )

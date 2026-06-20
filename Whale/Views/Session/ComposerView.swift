@@ -10,7 +10,7 @@ struct ComposerView: View {
     let selectedModel: ModelOption
     let onSelectProvider: (AgentProvider) -> Void
     let onSelectModel: (ModelOption) -> Void
-    let onSend: (String) -> Void
+    let onSend: (String, [URL]) -> Void
     let onCancel: () -> Void
 
     @State private var attachments: [URL] = []
@@ -156,7 +156,7 @@ struct ComposerView: View {
 
     private func send() {
         guard !isStreaming, canSend else { return }
-        onSend(composedPrompt())
+        onSend(composedPrompt(), attachments)
         text = ""
         attachments = []
     }
@@ -165,7 +165,8 @@ struct ComposerView: View {
     /// attachment view), so the typed sentence stays readable while still showing which
     /// attachment was dropped where. The same name+icon also shows as a removable chip below.
     private func token(for url: URL) -> String {
-        "📎\(url.lastPathComponent)"
+        let isDirectory = (try? url.resourceValues(forKeys: [.isDirectoryKey]).isDirectory) ?? false
+        return "\(isDirectory ? "📁" : "📄")\(url.lastPathComponent)"
     }
 
     /// Replaces each attachment's inline token with its real path so Claude's own Read/Glob

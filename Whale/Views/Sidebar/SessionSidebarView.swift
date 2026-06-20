@@ -319,7 +319,7 @@ private struct FileTreeNode: View {
 
 // MARK: - Content search
 
-private struct ContentMatch: Identifiable, Hashable {
+fileprivate struct ContentMatch: Identifiable, Hashable {
     let url: URL
     let line: Int
     let text: String
@@ -530,7 +530,7 @@ private struct FilePreviewView: View {
 
 // MARK: - File-system helpers
 
-private enum FileTree {
+enum FileTree {
     /// Names skipped regardless of hidden status — bulky/noise dirs that aren't useful.
     static let ignored: Set<String> = ["node_modules", "build", "dist", "DerivedData", ".build", ".git"]
 
@@ -581,7 +581,7 @@ private enum FileTree {
 
     /// VSCode-style content search: bounded recursive walk, skipping hidden/ignored/excluded paths
     /// and binary or oversized files; matches case-insensitive substrings line by line.
-    static func contentSearch(
+    fileprivate static func contentSearch(
         _ root: URL,
         query: String,
         excludes: [String],

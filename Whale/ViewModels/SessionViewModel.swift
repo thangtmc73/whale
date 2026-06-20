@@ -53,7 +53,7 @@ final class SessionViewModel {
         ModelCatalog.options(for: session.provider)
     }
 
-    func send(prompt: String) {
+    func send(prompt: String, attachments: [URL] = []) {
         guard !prompt.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return }
         guard !isStreaming else { return }
 
@@ -66,7 +66,7 @@ final class SessionViewModel {
         session.lastActivityAt = .now
         onSessionUpdated(session)
 
-        let turn = Turn(promptText: prompt)
+        let turn = Turn(promptText: prompt, attachments: attachments)
         let turnIndex = turns.count
         turns.append(turn)
 

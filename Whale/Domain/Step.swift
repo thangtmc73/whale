@@ -56,13 +56,17 @@ struct Step: Identifiable {
 struct Turn: Identifiable {
     let id: UUID = UUID()
     let promptText: String
+    /// File/folder URLs attached to this prompt (dragged into the composer). Kept so the sent
+    /// prompt can render them as highlighted tokens, matching the composer's attachment chips.
+    let attachments: [URL]
     let startedAt: Date
     var steps: [Step] = []
     var completedAt: Date?
     var failed: Bool = false
 
-    init(promptText: String, startedAt: Date = .now) {
+    init(promptText: String, attachments: [URL] = [], startedAt: Date = .now) {
         self.promptText = promptText
+        self.attachments = attachments
         self.startedAt = startedAt
     }
 }
