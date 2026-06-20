@@ -88,7 +88,7 @@ struct ComposerView: View {
         .whaleGlow(isDropTargeted ? WhaleTheme.Color.secondary : WhaleTheme.Color.primary, radius: isDropTargeted ? 24 : 14, opacity: isDropTargeted ? 0.25 : 0.10)
         .padding(WhaleTheme.Spacing.md)
         .animation(WhaleTheme.Motion.fast, value: isDropTargeted)
-        .onDrop(of: [.fileURL], isTargeted: $isDropTargeted) { providers in
+        .onDrop(of: [.fileURL, .url], isTargeted: $isDropTargeted) { providers in
             handleDrop(providers: providers)
         }
     }

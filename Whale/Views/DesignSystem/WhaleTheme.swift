@@ -34,24 +34,23 @@ enum WhaleTheme {
         static let gradient = LinearGradient(colors: [primary, secondary], startPoint: .leading, endPoint: .trailing)
     }
 
-    /// Code/diff blocks are a self-contained dark "editor" element in BOTH appearances — a deep
-    /// navy slab with light text. This is deliberate: a near-white code slab in light mode washed
-    /// out the pastel syntax colors and read as "too bright"; a fixed dark slab keeps strong,
-    /// consistent contrast and reinforces the Deep Ocean identity. Because the slab never changes
-    /// with appearance, these are fixed colors (not `dynamic`) — and the syntax highlighter must
-    /// use this palette rather than the appearance-adaptive `Color.*` tokens (which would go
-    /// dark-on-dark in light mode).
+    /// Code/diff palette — now adaptive to the appearance. Dark mode keeps the deep navy editor
+    /// slab with light text + pastel syntax; light mode uses a soft light slab with darker, denser
+    /// syntax colors tuned for contrast (an earlier near-white slab with pastel colors read as
+    /// washed out, so the light variants here are deliberately deeper greens/blues/ambers). The
+    /// syntax highlighter uses THIS palette (not the general `Color.*` tokens) so each token has a
+    /// purpose-picked value per appearance.
     enum Code {
-        static let background = SwiftUI.Color(hex: 0x0C1730)
-        static let header = SwiftUI.Color.white.opacity(0.04)
-        static let border = SwiftUI.Color.white.opacity(0.10)
-        static let text = SwiftUI.Color(hex: 0xE6EDF7)
-        static let muted = SwiftUI.Color(hex: 0x8A97B0)
-        static let string = SwiftUI.Color(hex: 0x86EFAC)
-        static let number = SwiftUI.Color(hex: 0x93E8FF)
-        static let keyword = SwiftUI.Color(hex: 0x2EE6F5)
-        static let diffAddition = SwiftUI.Color(hex: 0x86EFAC)
-        static let diffRemoval = SwiftUI.Color(hex: 0xFCA5A5)
+        static let background = SwiftUI.Color.dynamic(light: 0xF1F4F9, dark: 0x0C1730)
+        static let header = SwiftUI.Color.dynamic(light: 0x0B1A33, darkAlpha: 0.04, lightAlpha: 0.05, dark: 0xFFFFFF)
+        static let border = SwiftUI.Color.dynamic(light: 0x0B1A33, darkAlpha: 0.10, lightAlpha: 0.12, dark: 0xFFFFFF)
+        static let text = SwiftUI.Color.dynamic(light: 0x1F2430, dark: 0xE6EDF7)
+        static let muted = SwiftUI.Color.dynamic(light: 0x6B7280, dark: 0x8A97B0)
+        static let string = SwiftUI.Color.dynamic(light: 0x0A7D33, dark: 0x86EFAC)
+        static let number = SwiftUI.Color.dynamic(light: 0xB45309, dark: 0x93E8FF)
+        static let keyword = SwiftUI.Color.dynamic(light: 0x0550AE, dark: 0x2EE6F5)
+        static let diffAddition = SwiftUI.Color.dynamic(light: 0x15803D, dark: 0x86EFAC)
+        static let diffRemoval = SwiftUI.Color.dynamic(light: 0xB91C1C, dark: 0xFCA5A5)
         static let diffAdditionBackground = SwiftUI.Color(hex: 0x22C55E, opacity: 0.16)
         static let diffRemovalBackground = SwiftUI.Color(hex: 0xEF4444, opacity: 0.16)
     }
