@@ -98,17 +98,35 @@ final class AccountsViewModel {
     }
 }
 
-/// Settings is shown inline in the main window's detail area; the "‹ Back" affordance lives in the
-/// navigation header (see `RootView`), so this view is just the tabbed content.
 struct SettingsView: View {
+    /// Provided when embedded inline in the main window (the “Done” button calls this). Falls back
+    /// to environment dismissal so the view still works if ever presented modally.
+    var onClose: (() -> Void)? = nil
+
+    @Environment(\.dismiss) private var dismiss
+
     var body: some View {
-        TabView {
-            GeneralSettingsView()
-                .tabItem { Label("General", systemImage: "gearshape") }
-            AccountsSettingsView()
-                .tabItem { Label("Accounts", systemImage: "person.crop.circle") }
+        VStack(spacing: 0) {
+            HStack {
+                Button("Done") {
+                    if let onClose { onClose() } else { dismiss() }
+                }
+                .keyboardShortcut(.defaultAction)
+            }
+            .padding(WhaleTheme.Spacing.md)
+            .background(WhaleTheme.Color.background)
+
+            Divider().overlay(WhaleTheme.Color.border)
+
+            TabView {
+                GeneralSettingsView()
+                    .tabItem { Label("General", systemImage: "gearshape") }
+                AccountsSettingsView()
+                    .tabItem { Label("Accounts", systemImage: "person.crop.circle") }
+            }
+            .padding(WhaleTheme.Spacing.md)
+            .background(WhaleTheme.Color.background)
         }
-        .padding(WhaleTheme.Spacing.md)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(WhaleTheme.Color.background)
     }
@@ -127,30 +145,22 @@ private struct GeneralSettingsView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: WhaleTheme.Spacing.lg) {
                 SettingsSection(title: "Appearance") {
-                    VStack(alignment: .leading, spacing: WhaleTheme.Spacing.md) {
-                        HStack {
-                            Text("Theme")
-                                .font(WhaleTheme.Typography.body())
-                            Spacer()
-                            Picker(selection: $appearanceRaw) {
-                                ForEach(AppearancePreference.allCases) { pref in
-                                    Label(pref.displayName, systemImage: pref.symbol).tag(pref.rawValue)
-                                }
-                            } label: {
-                                EmptyView()
-                            }
-                            .pickerStyle(.segmented)
-                            .labelsHidden()
-                            .onChange(of: appearanceRaw) { _, newValue in
-                                AppearancePreference(rawValue: newValue)?.apply()
-                            }
-                        }
-
-                        Text("Deep Ocean adapts to light and dark. “System” follows your macOS appearance.")
-                            .font(WhaleTheme.Typography.caption())
-                            .foregroundStyle(WhaleTheme.Color.muted)
+                Picker(selection: $appearanceRaw) {
+                    ForEach(AppearancePreference.allCases) { pref in
+                        Label(pref.displayName, systemImage: pref.symbol).tag(pref.rawValue)
                     }
+                } label: {
+                    Text("Theme")
                 }
+                .pickerStyle(.segmented)
+                .onChange(of: appearanceRaw) { _, newValue in
+                    AppearancePreference(rawValue: newValue)?.apply()
+                }
+
+                Text("Deep Ocean adapts to light and dark. “System” follows your macOS appearance.")
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
+            }
 
                 SettingsSection(title: "About") {
                     VStack(alignment: .leading, spacing: WhaleTheme.Spacing.sm) {

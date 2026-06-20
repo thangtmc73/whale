@@ -26,6 +26,7 @@ final class ClaudeCLIService: AgentCLIService {
         session: Session,
         model: ModelOption,
         permissionMode: PermissionMode,
+        onRawLine: @escaping (String) -> Void,
         onResolveCLISessionID: @escaping (String) -> Void
     ) -> AsyncThrowingStream<Step, Error> {
         AsyncThrowingStream { continuation in
@@ -59,6 +60,7 @@ final class ClaudeCLIService: AgentCLIService {
                     )
 
                     for try await line in lineStream {
+                        onRawLine(line)
                         for step in ClaudeEventParser.parse(line: line) {
                             continuation.yield(step)
                         }

@@ -26,9 +26,5 @@ struct WhaleApp: App {
                 .keyboardShortcut("o", modifiers: .command)
             }
         }
-
-        Settings {
-            SettingsView()
-        }
     }
 }

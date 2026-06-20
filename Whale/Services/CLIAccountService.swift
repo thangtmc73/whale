@@ -30,6 +30,14 @@ extension AgentProvider {
         }
     }
 
+    var loginArguments: [String] {
+        switch self {
+        case .claude: return ["auth", "login"]
+        case .codex: return ["login"]
+        case .cursor: return ["login"]
+        }
+    }
+
     var logoutArguments: [String] {
         switch self {
         case .claude: return ["auth", "logout"]
@@ -37,21 +45,20 @@ extension AgentProvider {
         case .cursor: return ["logout"]
         }
     }
-
-    /// Shell command run in a real Terminal window — login is an interactive, browser-based flow,
-    /// so it needs a TTY the user can see rather than a captured background subprocess.
-    var loginShellCommand: String {
-        switch self {
-        case .claude: return "claude auth login"
-        case .codex: return "codex login"
-        case .cursor: return "cursor-agent login"
-        }
-    }
 }
 
-/// Runs each provider CLI's native auth commands. Status and logout are captured subprocesses;
-/// login is delegated to Terminal because its browser handshake expects an interactive session.
+/// Runs each provider CLI's native auth commands as managed in-app subprocesses.
+///
+/// Login is intentionally NOT delegated to an external Terminal: Codex hosts its OAuth callback
+/// server on `localhost` *inside the login process*, and Cursor polls its backend from inside the
+/// login process — so the flow only completes (and is observable) if that process stays alive as a
+/// child of this app. An external Terminal detaches it: Cursor would finish without the app
+/// noticing, and Codex's callback would land in a process the app can't see. Both CLIs run fine
+/// without a TTY and open the browser themselves; `onURL` surfaces the link for a manual fallback.
 final class CLIAccountService {
+    private let lock = NSLock()
+    private var loginProcesses: [AgentProvider: Process] = [:]
+
     func status(for provider: AgentProvider) async -> AccountStatus {
         guard let resolved = try? await ProcessPathResolver.shared.resolveFirst(of: provider.executableNames) else {
             return AccountStatus(state: .notInstalled, detail: nil)
@@ -70,21 +77,75 @@ final class CLIAccountService {
         return await status(for: provider)
     }
 
-    /// Opens Terminal and runs the provider's login command there. The user completes the browser
-    /// flow, then returns to Whale and refreshes status manually (the CLI's callback server lives
-    /// in that Terminal process, not in this app).
-    func beginLogin(provider: AgentProvider) {
-        let command = provider.loginShellCommand
-        let script = """
-        tell application "Terminal"
-            activate
-            do script "\(command)"
-        end tell
-        """
-        let process = Process()
-        process.executableURL = URL(fileURLWithPath: "/usr/bin/osascript")
-        process.arguments = ["-e", script]
-        try? process.run()
+    /// Runs `<cli> login` and stays alive until the CLI exits (i.e. the browser flow completes or
+    /// is abandoned), then resolves to the refreshed status. `onURL` fires with the sign-in link
+    /// parsed from the CLI's output, so the UI can offer a manual "open page" fallback if the
+    /// browser didn't open on its own.
+    func login(provider: AgentProvider, onURL: @escaping (URL) -> Void) async -> AccountStatus {
+        guard let resolved = try? await ProcessPathResolver.shared.resolveFirst(of: provider.executableNames) else {
+            return AccountStatus(state: .notInstalled, detail: nil)
+        }
+        await runLogin(provider: provider, executable: resolved.path, environment: resolved.environment, onURL: onURL)
+        return await status(for: provider)
+    }
+
+    /// Aborts an in-flight login (e.g. user tapped Cancel) — terminates the CLI process, which
+    /// also tears down its localhost callback server / polling loop.
+    func cancelLogin(provider: AgentProvider) {
+        lock.lock()
+        let process = loginProcesses[provider]
+        lock.unlock()
+        process?.terminate()
+    }
+
+    private func runLogin(provider: AgentProvider, executable: String, environment: [String: String], onURL: @escaping (URL) -> Void) async {
+        await withCheckedContinuation { (continuation: CheckedContinuation<Void, Never>) in
+            let process = Process()
+            process.executableURL = URL(fileURLWithPath: executable)
+            process.arguments = provider.loginArguments
+            process.environment = environment
+
+            let outPipe = Pipe()
+            let errPipe = Pipe()
+            process.standardOutput = outPipe
+            process.standardError = errPipe
+
+            var didFindURL = false
+            let scan: (FileHandle) -> Void = { handle in
+                let data = handle.availableData
+                guard !data.isEmpty, let text = String(data: data, encoding: .utf8) else { return }
+                if !didFindURL, let url = Self.firstURL(in: text) {
+                    didFindURL = true
+                    DispatchQueue.main.async { onURL(url) }
+                }
+            }
+            outPipe.fileHandleForReading.readabilityHandler = scan
+            errPipe.fileHandleForReading.readabilityHandler = scan
+
+            process.terminationHandler = { [weak self] _ in
+                outPipe.fileHandleForReading.readabilityHandler = nil
+                errPipe.fileHandleForReading.readabilityHandler = nil
+                self?.lock.lock()
+                self?.loginProcesses[provider] = nil
+                self?.lock.unlock()
+                continuation.resume()
+            }
+
+            // Replace any stale login still holding the callback port before starting a new one.
+            lock.lock()
+            loginProcesses[provider]?.terminate()
+            loginProcesses[provider] = process
+            lock.unlock()
+
+            do {
+                try process.run()
+            } catch {
+                lock.lock()
+                loginProcesses[provider] = nil
+                lock.unlock()
+                continuation.resume()
+            }
+        }
     }
 
     private func parseStatus(provider: AgentProvider, exitCode: Int32, stdout: String) -> AccountStatus {
@@ -120,6 +181,14 @@ final class CLIAccountService {
                 let detail = cleaned[range.upperBound...].trimmingCharacters(in: .whitespaces)
                 return detail.isEmpty ? nil : detail
             }
+        }
+        return nil
+    }
+
+    static func firstURL(in text: String) -> URL? {
+        for token in text.split(whereSeparator: { $0 == " " || $0 == "\n" || $0 == "\t" }) {
+            guard token.hasPrefix("https://") else { continue }
+            return URL(string: String(token))
         }
         return nil
     }

@@ -14,6 +14,7 @@ protocol AgentCLIService {
         session: Session,
         model: ModelOption,
         permissionMode: PermissionMode,
+        onRawLine: @escaping (String) -> Void,
         onResolveCLISessionID: @escaping (String) -> Void
     ) -> AsyncThrowingStream<Step, Error>
 
