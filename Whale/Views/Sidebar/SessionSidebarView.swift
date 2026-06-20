@@ -25,6 +25,11 @@ struct SessionSidebarView: View {
                     } label: {
                         Label(AgentProvider.cursor.displayName, systemImage: AgentProvider.cursor.iconName)
                     }
+                    Button {
+                        appViewModel.createSession(provider: .codex)
+                    } label: {
+                        Label(AgentProvider.codex.displayName, systemImage: AgentProvider.codex.iconName)
+                    }
                 } label: {
                     Image(systemName: "plus")
                         .font(.system(size: 11, weight: .semibold))
