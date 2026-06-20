@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		A1A1A1A1A1A1A1A1A1A10002 /* CLIAccountService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1A1A1A1A1A1A1A1A1A10001 /* CLIAccountService.swift */; };
+		A1A1A1A1A1A1A1A1A1A10004 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1A1A1A1A1A1A1A1A1A10003 /* SettingsView.swift */; };
 		0660643E7528C65D64A7CAAE /* ClaudeCLIService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3677AAA6749F957A9451D42C /* ClaudeCLIService.swift */; };
 		080532C8F0510C713EFC5ADA /* CodexCLIService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07BA639DF3626B1753546DF2 /* CodexCLIService.swift */; };
 		0EAAA8D7C08E6A9B22484166 /* WhaleTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4644D2609E2896595695BF6C /* WhaleTheme.swift */; };
@@ -64,6 +66,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		A1A1A1A1A1A1A1A1A1A10001 /* CLIAccountService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CLIAccountService.swift; sourceTree = "<group>"; };
+		A1A1A1A1A1A1A1A1A1A10003 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		02DEA94B7C15705F48706C34 /* JSONLineDecoder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JSONLineDecoder.swift; sourceTree = "<group>"; };
 		07BA639DF3626B1753546DF2 /* CodexCLIService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CodexCLIService.swift; sourceTree = "<group>"; };
 		08AFC9C0E1D2BDF69775CB19 /* JSONLineDecoderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JSONLineDecoderTests.swift; sourceTree = "<group>"; };
@@ -174,6 +178,7 @@
 				B4AAA118024DD94981427D3A /* CursorCLIService.swift */,
 				02DEA94B7C15705F48706C34 /* JSONLineDecoder.swift */,
 				1BE3E49346B8F8BC6B325C35 /* ProcessStreamRunner.swift */,
+				A1A1A1A1A1A1A1A1A1A10001 /* CLIAccountService.swift */,
 				00FB716B73134A72DC979A1D /* Parsing */,
 				0310F95288E197F0EB491F2F /* Persistence */,
 			);
@@ -196,8 +201,17 @@
 				B924A43BF6DAC191E92084BD /* Onboarding */,
 				DED199A365D1C60A9101CE48 /* Session */,
 				9E9FF7B687B4FEC21C69DB53 /* Sidebar */,
+				A1A1A1A1A1A1A1A1A1A10005 /* Settings */,
 			);
 			path = Views;
+			sourceTree = "<group>";
+		};
+		A1A1A1A1A1A1A1A1A1A10005 /* Settings */ = {
+			isa = PBXGroup;
+			children = (
+				A1A1A1A1A1A1A1A1A1A10003 /* SettingsView.swift */,
+			);
+			path = Settings;
 			sourceTree = "<group>";
 		};
 		9E9FF7B687B4FEC21C69DB53 /* Sidebar */ = {
@@ -372,6 +386,8 @@
 				A773D5B156CB6AC8960FEDCA /* AddProjectView.swift in Sources */,
 				890CEB4C26A2876827F467F7 /* AgentCLIService.swift in Sources */,
 				1BCD5F1F0BAE9BB0BE8E8C2B /* AppDelegate.swift in Sources */,
+				A1A1A1A1A1A1A1A1A1A10002 /* CLIAccountService.swift in Sources */,
+				A1A1A1A1A1A1A1A1A1A10004 /* SettingsView.swift in Sources */,
 				149D0A606A61A1FBC5B700D2 /* AppViewModel.swift in Sources */,
 				1A349BE513F3BDB6E6C6A531 /* AttachmentChip.swift in Sources */,
 				0660643E7528C65D64A7CAAE /* ClaudeCLIService.swift in Sources */,
