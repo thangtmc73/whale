@@ -149,11 +149,11 @@ enum CodeSyntaxHighlighter {
     }
 
     private static func color(for match: NSTextCheckingResult) -> Color? {
-        if match.range(withName: "comment").location != NSNotFound { return WhaleTheme.Color.muted }
-        if match.range(withName: "blockComment").location != NSNotFound { return WhaleTheme.Color.muted }
-        if match.range(withName: "string").location != NSNotFound { return Color(hex: 0x86EFAC) }
-        if match.range(withName: "number").location != NSNotFound { return WhaleTheme.Color.accent }
-        if match.range(withName: "keyword").location != NSNotFound { return WhaleTheme.Color.secondary }
+        if match.range(withName: "comment").location != NSNotFound { return WhaleTheme.Code.muted }
+        if match.range(withName: "blockComment").location != NSNotFound { return WhaleTheme.Code.muted }
+        if match.range(withName: "string").location != NSNotFound { return WhaleTheme.Code.string }
+        if match.range(withName: "number").location != NSNotFound { return WhaleTheme.Code.number }
+        if match.range(withName: "keyword").location != NSNotFound { return WhaleTheme.Code.keyword }
         return nil
     }
 }

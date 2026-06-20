@@ -15,7 +15,7 @@ struct CopyableCodeBlock: View {
             HStack {
                 Text((language?.isEmpty == false ? language : nil) ?? "text")
                     .font(.system(size: 10, weight: .semibold, design: .monospaced))
-                    .foregroundStyle(WhaleTheme.Color.muted)
+                    .foregroundStyle(WhaleTheme.Code.muted)
                     .textCase(.lowercase)
                 Spacer()
                 Button(action: copy) {
@@ -24,28 +24,28 @@ struct CopyableCodeBlock: View {
                         Text(didCopy ? "Copied" : "Copy")
                     }
                     .font(.system(size: 10, weight: .medium))
-                    .foregroundStyle(didCopy ? WhaleTheme.Color.secondary : WhaleTheme.Color.muted)
+                    .foregroundStyle(didCopy ? WhaleTheme.Code.keyword : WhaleTheme.Code.muted)
                 }
                 .buttonStyle(.plain)
                 .help(didCopy ? "Copied" : "Copy")
             }
             .padding(.horizontal, WhaleTheme.Spacing.md)
             .padding(.vertical, 8)
-            .background(WhaleTheme.Color.codeHeader)
+            .background(WhaleTheme.Code.header)
 
-            Divider().overlay(WhaleTheme.Color.border)
+            Divider().overlay(WhaleTheme.Code.border)
 
             ScrollView(.horizontal, showsIndicators: false) {
                 Text(CodeSyntaxHighlighter.highlight(text, language: language))
                     .font(WhaleTheme.Typography.mono())
-                    .foregroundStyle(WhaleTheme.Color.text.opacity(0.92))
+                    .foregroundStyle(WhaleTheme.Code.text)
                     .textSelection(.enabled)
                     .padding(WhaleTheme.Spacing.md)
             }
         }
-        .background(WhaleTheme.Color.codeBackground)
+        .background(WhaleTheme.Code.background)
         .clipShape(RoundedRectangle(cornerRadius: WhaleTheme.Radius.small))
-        .overlay(RoundedRectangle(cornerRadius: WhaleTheme.Radius.small).strokeBorder(WhaleTheme.Color.border, lineWidth: 1))
+        .overlay(RoundedRectangle(cornerRadius: WhaleTheme.Radius.small).strokeBorder(WhaleTheme.Code.border, lineWidth: 1))
     }
 
     private func copy() {
