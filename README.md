@@ -45,6 +45,7 @@ Whale is a SwiftUI-based macOS app that acts as a GUI wrapper for multiple AI co
 - **AgentCLIService**: Protocol for wrapping provider CLIs as subprocesses
   - `ClaudeCLIService`: Claude Code CLI integration
   - `CursorCLIService`: Cursor CLI integration
+  - `CodexCLIService`: Codex CLI integration
 - **ProcessStreamRunner**: Manages subprocess execution and output streaming
 - **JSONLineDecoder**: Parses JSON Lines format from CLI streams
 - **Event Parsers**: Provider-specific parsing of CLI output

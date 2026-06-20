@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		0660643E7528C65D64A7CAAE /* ClaudeCLIService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3677AAA6749F957A9451D42C /* ClaudeCLIService.swift */; };
+		080532C8F0510C713EFC5ADA /* CodexCLIService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07BA639DF3626B1753546DF2 /* CodexCLIService.swift */; };
 		0EAAA8D7C08E6A9B22484166 /* WhaleTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4644D2609E2896595695BF6C /* WhaleTheme.swift */; };
 		149D0A606A61A1FBC5B700D2 /* AppViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 921CBD40EA30D893EA9A3441 /* AppViewModel.swift */; };
 		18ACE1ADF8241C3AFC889F46 /* WhaleApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9793C421E010FF7CA3829EA4 /* WhaleApp.swift */; };
@@ -21,6 +22,7 @@
 		37F2A2F44943BA25A11DF3AE /* SessionRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 864549CD18E95408C8A36DB0 /* SessionRowView.swift */; };
 		40DEE2D2BAECB8E36283CBDC /* ProjectStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B75E584F943DFD56DB23037 /* ProjectStore.swift */; };
 		41B752EC9D6CE0179D237589 /* SessionTransition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52E094016DA469D38239B6FB /* SessionTransition.swift */; };
+		42906B00DE8B3EF59704EC76 /* CodexEventParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84AF0CD3F8409C1EAD8F7592 /* CodexEventParser.swift */; };
 		4D832DB39BBD446C6B7B3F04 /* ProcessingIndicatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4AF7A0F5951FB62861AC7424 /* ProcessingIndicatorView.swift */; };
 		4E2A2535DF3337B667F5D199 /* SessionSidebarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5A9B5F8DFFEA342A15D9EEF /* SessionSidebarView.swift */; };
 		5471082552ADC0ACBFF15ECC /* PermissionMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585B1986C0D84CCECBDB6FFC /* PermissionMode.swift */; };
@@ -63,6 +65,7 @@
 
 /* Begin PBXFileReference section */
 		02DEA94B7C15705F48706C34 /* JSONLineDecoder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JSONLineDecoder.swift; sourceTree = "<group>"; };
+		07BA639DF3626B1753546DF2 /* CodexCLIService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CodexCLIService.swift; sourceTree = "<group>"; };
 		08AFC9C0E1D2BDF69775CB19 /* JSONLineDecoderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JSONLineDecoderTests.swift; sourceTree = "<group>"; };
 		177B211323599792CE0B6469 /* AgentCLIService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AgentCLIService.swift; sourceTree = "<group>"; };
 		1816480A066712E3920D55E2 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -86,6 +89,7 @@
 		717ABFACD607D44C6F04CA9C /* SessionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionView.swift; sourceTree = "<group>"; };
 		79C4452752432E38522E253F /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
 		8408B5211309AF1C02698AC2 /* StepRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StepRowView.swift; sourceTree = "<group>"; };
+		84AF0CD3F8409C1EAD8F7592 /* CodexEventParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CodexEventParser.swift; sourceTree = "<group>"; };
 		85BDAC25AE443D609E514F84 /* ProcessStreamRunnerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProcessStreamRunnerTests.swift; sourceTree = "<group>"; };
 		864549CD18E95408C8A36DB0 /* SessionRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionRowView.swift; sourceTree = "<group>"; };
 		921CBD40EA30D893EA9A3441 /* AppViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppViewModel.swift; sourceTree = "<group>"; };
@@ -113,6 +117,7 @@
 			isa = PBXGroup;
 			children = (
 				590F3C3C3EFBE645DA40641F /* ClaudeEventParser.swift */,
+				84AF0CD3F8409C1EAD8F7592 /* CodexEventParser.swift */,
 				F6FCC1A4DA5705342FF7CA5F /* CursorEventParser.swift */,
 			);
 			path = Parsing;
@@ -165,6 +170,7 @@
 			children = (
 				177B211323599792CE0B6469 /* AgentCLIService.swift */,
 				3677AAA6749F957A9451D42C /* ClaudeCLIService.swift */,
+				07BA639DF3626B1753546DF2 /* CodexCLIService.swift */,
 				B4AAA118024DD94981427D3A /* CursorCLIService.swift */,
 				02DEA94B7C15705F48706C34 /* JSONLineDecoder.swift */,
 				1BE3E49346B8F8BC6B325C35 /* ProcessStreamRunner.swift */,
@@ -371,6 +377,8 @@
 				0660643E7528C65D64A7CAAE /* ClaudeCLIService.swift in Sources */,
 				805B61982E6183A15CF9A41E /* ClaudeEventParser.swift in Sources */,
 				8E96EC90F856FE7AC6A90550 /* CodeSyntaxHighlighter.swift in Sources */,
+				080532C8F0510C713EFC5ADA /* CodexCLIService.swift in Sources */,
+				42906B00DE8B3EF59704EC76 /* CodexEventParser.swift in Sources */,
 				FB3280A93D4E17E805DAE606 /* ComposerView.swift in Sources */,
 				ED6133F17BF0545B3A56DF10 /* CopyableCodeBlock.swift in Sources */,
 				D207F6BB76167B4295B71C66 /* CursorCLIService.swift in Sources */,

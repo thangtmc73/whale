@@ -25,9 +25,13 @@ enum ModelCatalog {
         ModelOption(id: "auto", displayName: "Auto", provider: .cursor),
     ]
 
-    /// Unverified — codex CLI is not installed locally; confirm against `codex --help` before relying on this.
+    /// Verified against this account's real `~/.codex/models_cache.json` (codex-cli 0.141.0) —
+    /// the previous "gpt-5-codex" id was a guess and codex rejects it ("not supported when
+    /// using Codex with a ChatGPT account"). Only `visibility: "list"` slugs are offered here;
+    /// `codex-auto-review` is hidden and not a general chat model.
     static let codex: [ModelOption] = [
-        ModelOption(id: "gpt-5-codex", displayName: "GPT-5 Codex", provider: .codex),
+        ModelOption(id: "gpt-5.5", displayName: "GPT-5.5", provider: .codex),
+        ModelOption(id: "gpt-5.4-mini", displayName: "GPT-5.4-Mini", provider: .codex),
     ]
 
     static func options(for provider: AgentProvider) -> [ModelOption] {

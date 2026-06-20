@@ -40,7 +40,7 @@ final class SessionViewModel {
         case .cursor:
             self.cliService = CursorCLIService()
         case .codex:
-            self.cliService = ClaudeCLIService() // TODO: CodexCLIService once codex is installed/verified (M3)
+            self.cliService = CodexCLIService()
         }
     }
 
