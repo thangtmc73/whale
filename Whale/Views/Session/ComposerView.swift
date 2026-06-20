@@ -4,7 +4,13 @@ import UniformTypeIdentifiers
 struct ComposerView: View {
     @Binding var text: String
     let isStreaming: Bool
-    let onSend: (String) -> Void
+    let provider: AgentProvider
+    let switchableProviders: [AgentProvider]
+    let availableModels: [ModelOption]
+    let selectedModel: ModelOption
+    let onSelectProvider: (AgentProvider) -> Void
+    let onSelectModel: (ModelOption) -> Void
+    let onSend: (String, [URL]) -> Void
     let onCancel: () -> Void
 
     @State private var attachments: [URL] = []
@@ -61,9 +67,14 @@ struct ComposerView: View {
                 }
             }
 
-            Text("Enter to send · Shift+Enter for a new line · Drag files or folders in to attach them")
-                .font(WhaleTheme.Typography.caption(10))
-                .foregroundStyle(WhaleTheme.Color.muted)
+            HStack(spacing: WhaleTheme.Spacing.sm) {
+                providerMenu
+                modelMenu
+                Spacer(minLength: 0)
+                Text("Enter to send · Shift+Enter for newline")
+                    .font(WhaleTheme.Typography.caption(10))
+                    .foregroundStyle(WhaleTheme.Color.muted)
+            }
         }
         .padding(WhaleTheme.Spacing.md)
         .background(
@@ -77,14 +88,75 @@ struct ComposerView: View {
         .whaleGlow(isDropTargeted ? WhaleTheme.Color.secondary : WhaleTheme.Color.primary, radius: isDropTargeted ? 24 : 14, opacity: isDropTargeted ? 0.25 : 0.10)
         .padding(WhaleTheme.Spacing.md)
         .animation(WhaleTheme.Motion.fast, value: isDropTargeted)
-        .onDrop(of: [.fileURL], isTargeted: $isDropTargeted) { providers in
+        .onDrop(of: [.fileURL, .url], isTargeted: $isDropTargeted) { providers in
             handleDrop(providers: providers)
         }
     }
 
+    private var providerMenu: some View {
+        Menu {
+            ForEach(switchableProviders) { item in
+                Button {
+                    onSelectProvider(item)
+                } label: {
+                    if item == provider {
+                        Label(item.displayName, systemImage: "checkmark")
+                    } else {
+                        Label(item.displayName, systemImage: item.iconName)
+                    }
+                }
+            }
+        } label: {
+            chipLabel(systemImage: provider.iconName, text: provider.displayName)
+        }
+        .menuStyle(.borderlessButton)
+        .menuIndicator(.hidden)
+        .fixedSize()
+        .help("Provider")
+    }
+
+    private var modelMenu: some View {
+        Menu {
+            ForEach(availableModels) { model in
+                Button {
+                    onSelectModel(model)
+                } label: {
+                    if model.id == selectedModel.id {
+                        Label(model.displayName, systemImage: "checkmark")
+                    } else {
+                        Text(model.displayName)
+                    }
+                }
+            }
+        } label: {
+            chipLabel(systemImage: "cpu", text: selectedModel.displayName)
+        }
+        .menuStyle(.borderlessButton)
+        .menuIndicator(.hidden)
+        .fixedSize()
+        .help("Model")
+    }
+
+    private func chipLabel(systemImage: String, text: String) -> some View {
+        HStack(spacing: 5) {
+            Image(systemName: systemImage)
+                .font(.system(size: 10, weight: .semibold))
+            Text(text)
+                .font(WhaleTheme.Typography.caption(11))
+            Image(systemName: "chevron.down")
+                .font(.system(size: 8, weight: .bold))
+                .foregroundStyle(WhaleTheme.Color.muted)
+        }
+        .foregroundStyle(WhaleTheme.Color.text)
+        .padding(.horizontal, WhaleTheme.Spacing.sm)
+        .padding(.vertical, 5)
+        .background(Capsule().fill(WhaleTheme.Color.surface))
+        .overlay(Capsule().strokeBorder(WhaleTheme.Color.border, lineWidth: 1))
+    }
+
     private func send() {
         guard !isStreaming, canSend else { return }
-        onSend(composedPrompt())
+        onSend(composedPrompt(), attachments)
         text = ""
         attachments = []
     }
@@ -93,7 +165,8 @@ struct ComposerView: View {
     /// attachment view), so the typed sentence stays readable while still showing which
     /// attachment was dropped where. The same name+icon also shows as a removable chip below.
     private func token(for url: URL) -> String {
-        "📎\(url.lastPathComponent)"
+        let isDirectory = (try? url.resourceValues(forKeys: [.isDirectoryKey]).isDirectory) ?? false
+        return "\(isDirectory ? "📁" : "📄")\(url.lastPathComponent)"
     }
 
     /// Replaces each attachment's inline token with its real path so Claude's own Read/Glob

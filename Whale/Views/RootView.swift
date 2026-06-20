@@ -2,118 +2,86 @@ import SwiftUI
 
 struct RootView: View {
     let appViewModel: AppViewModel
-    @State private var columnVisibility: NavigationSplitViewVisibility
+    @State private var columnVisibility: NavigationSplitViewVisibility = .all
     @State private var inspectorPresented = false
-    @State private var pendingProviderSwitch: AgentProvider?
-    
-    private let switchableProviders: [AgentProvider] = [.claude, .cursor, .codex]
-
-    init(appViewModel: AppViewModel) {
-        self.appViewModel = appViewModel
-        // AppViewModel auto-restores the last-opened project in its own init(), which runs
-        // before this view's first render — so `.onChange` below would never see a nil-to-
-        // non-nil transition to react to. Seed the initial value directly instead.
-        _columnVisibility = State(initialValue: appViewModel.selectedProject != nil ? .all : .detailOnly)
-    }
+    @State private var showSettings = false
 
     var body: some View {
-        NavigationSplitView(columnVisibility: $columnVisibility) {
-            if appViewModel.selectedProject != nil {
-                SessionSidebarView(appViewModel: appViewModel)
+        content
+            .frame(minWidth: 720, minHeight: 480)
+            .background(WhaleTheme.Color.background)
+            .tint(WhaleTheme.Color.secondary)
+            .toolbarBackground(WhaleTheme.Color.background, for: .windowToolbar)
+            .toolbarBackground(.visible, for: .windowToolbar)
+    }
+
+    /// Three distinct shells. Only the chat shell uses a `NavigationSplitView` — so the automatic
+    /// sidebar toggle (which can't be reliably removed per-screen) simply can't appear on the
+    /// Settings or Open Folder screens, which use a plain `NavigationStack` with no sidebar.
+    @ViewBuilder
+    private var content: some View {
+        if showSettings {
+            NavigationStack {
+                SettingsView()
+                    .navigationTitle("Settings")
+                    .toolbar { settingsToolbarItem }
             }
+        } else if appViewModel.selectedProject == nil {
+            NavigationStack {
+                AddProjectView(onPick: appViewModel.addProject)
+                    .navigationTitle("Whale")
+                    .toolbar { settingsToolbarItem }
+            }
+        } else {
+            chatShell
+        }
+    }
+
+    private var chatShell: some View {
+        NavigationSplitView(columnVisibility: $columnVisibility) {
+            SessionSidebarView(appViewModel: appViewModel)
         } detail: {
             if let sessionViewModel = appViewModel.selectedSessionViewModel {
                 SessionView(viewModel: sessionViewModel)
                     .inspector(isPresented: $inspectorPresented) {
-                        SessionInspectorView(viewModel: sessionViewModel, gitBranch: appViewModel.currentGitBranch)
-                            .inspectorColumnWidth(min: 220, ideal: 260, max: 320)
+                        SessionTerminalView(viewModel: sessionViewModel)
+                            .inspectorColumnWidth(min: 260, ideal: 340, max: 520)
                     }
             } else {
                 AddProjectView(onPick: appViewModel.addProject)
             }
         }
         .toolbar {
-            if let sessionViewModel = appViewModel.selectedSessionViewModel {
-                ToolbarItem(placement: .primaryAction) {
-                    Menu {
-                        ForEach(sessionViewModel.availableModels) { model in
-                            Button {
-                                sessionViewModel.switchModel(to: model)
-                            } label: {
-                                if model.id == sessionViewModel.selectedModel.id {
-                                    Label(model.displayName, systemImage: "checkmark")
-                                } else {
-                                    Text(model.displayName)
-                                }
-                            }
-                        }
-                    } label: {
-                        Text(sessionViewModel.selectedModel.displayName)
-                    }
-                    .help("Model")
-                }
-                
-                ToolbarItem(placement: .primaryAction) {
-                    Menu {
-                        ForEach(switchableProviders) { provider in
-                            Button {
-                                guard provider != sessionViewModel.session.provider else { return }
-                                pendingProviderSwitch = provider
-                            } label: {
-                                if provider == sessionViewModel.session.provider {
-                                    Label(provider.displayName, systemImage: "checkmark")
-                                } else {
-                                    Label(provider.displayName, systemImage: provider.iconName)
-                                }
-                            }
-                        }
-                    } label: {
-                        Label(sessionViewModel.session.provider.displayName, systemImage: sessionViewModel.session.provider.iconName)
-                    }
-                    .help("Provider")
-                }
-                
+            if appViewModel.selectedSessionViewModel != nil {
                 ToolbarItem(placement: .primaryAction) {
                     Button {
                         withAnimation(WhaleTheme.Motion.normal) {
                             inspectorPresented.toggle()
                         }
                     } label: {
-                        Image(systemName: "sidebar.trailing")
+                        Image(systemName: "terminal")
                     }
-                    .help("Toggle Inspector")
+                    .help("Toggle Terminal")
                 }
             }
+            settingsToolbarItem
         }
         .navigationTitle(appViewModel.selectedProject?.displayName ?? "Whale")
-        .navigationSubtitle(appViewModel.currentGitBranch ?? "")
-        .frame(minWidth: 720, minHeight: 480)
-        .background(WhaleTheme.Color.background)
-        .tint(WhaleTheme.Color.secondary)
-        .onChange(of: appViewModel.selectedProject?.id) { _, newValue in
-            columnVisibility = newValue != nil ? .all : .detailOnly
-        }
-        .confirmationDialog(
-            pendingProviderSwitch.map { "Switch to \($0.displayName)?" } ?? "",
-            isPresented: Binding(
-                get: { pendingProviderSwitch != nil },
-                set: { isPresented in if !isPresented { pendingProviderSwitch = nil } }
-            ),
-            presenting: pendingProviderSwitch
-        ) { provider in
-            Button("Carry Forward Context") {
-                appViewModel.selectedSessionViewModel?.requestProviderSwitch(to: provider, carryForwardContext: true)
-                pendingProviderSwitch = nil
+    }
+
+    /// One control for Settings: the gear both opens and closes it (filled while open), so there's
+    /// no separate Back/Done button. ⌘, toggles too.
+    private var settingsToolbarItem: some ToolbarContent {
+        ToolbarItem(placement: .primaryAction) {
+            Button {
+                withAnimation(WhaleTheme.Motion.normal) {
+                    showSettings.toggle()
+                }
+            } label: {
+                Image(systemName: showSettings ? "gearshape.fill" : "gearshape")
             }
-            Button("Start Fresh") {
-                appViewModel.selectedSessionViewModel?.requestProviderSwitch(to: provider, carryForwardContext: false)
-                pendingProviderSwitch = nil
-            }
-            Button("Cancel", role: .cancel) {
-                pendingProviderSwitch = nil
-            }
-        } message: { provider in
-            Text("\(provider.displayName) can't resume this conversation directly — a new session will be created, and the full conversation so far will be sent to it automatically.")
+            .help(showSettings ? "Close Settings" : "Settings")
+            .keyboardShortcut(",", modifiers: .command)
         }
     }
 }

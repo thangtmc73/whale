@@ -14,7 +14,7 @@ struct AttachmentChip: View {
 
     var body: some View {
         HStack(spacing: 4) {
-            Image(systemName: isDirectory ? "folder.fill" : "doc.fill")
+            Image(systemName: isDirectory ? "folder.fill" : FileTree.fileIcon(for: url))
                 .font(.caption2)
                 .foregroundStyle(WhaleTheme.Color.secondary)
             Text(url.lastPathComponent)

@@ -14,18 +14,18 @@ struct DiffCodeBlock: View {
 
         var foreground: Color {
             switch self {
-            case .addition: return Color(hex: 0x86EFAC)
-            case .removal: return Color(hex: 0xFCA5A5)
-            case .hunkHeader: return WhaleTheme.Color.secondary
-            case .fileHeader: return WhaleTheme.Color.muted
-            case .context: return WhaleTheme.Color.text.opacity(0.85)
+            case .addition: return WhaleTheme.Code.diffAddition
+            case .removal: return WhaleTheme.Code.diffRemoval
+            case .hunkHeader: return WhaleTheme.Code.keyword
+            case .fileHeader: return WhaleTheme.Code.muted
+            case .context: return WhaleTheme.Code.text
             }
         }
 
         var background: Color {
             switch self {
-            case .addition: return Color(hex: 0x22C55E, opacity: 0.16)
-            case .removal: return Color(hex: 0xEF4444, opacity: 0.16)
+            case .addition: return WhaleTheme.Code.diffAdditionBackground
+            case .removal: return WhaleTheme.Code.diffRemovalBackground
             default: return .clear
             }
         }
@@ -44,7 +44,7 @@ struct DiffCodeBlock: View {
             HStack {
                 Text("diff")
                     .font(.system(size: 10, weight: .semibold, design: .monospaced))
-                    .foregroundStyle(WhaleTheme.Color.muted)
+                    .foregroundStyle(WhaleTheme.Code.muted)
                 Spacer()
                 Button(action: copy) {
                     HStack(spacing: 4) {
@@ -52,16 +52,16 @@ struct DiffCodeBlock: View {
                         Text(didCopy ? "Copied" : "Copy")
                     }
                     .font(.system(size: 10, weight: .medium))
-                    .foregroundStyle(didCopy ? WhaleTheme.Color.secondary : WhaleTheme.Color.muted)
+                    .foregroundStyle(didCopy ? WhaleTheme.Code.keyword : WhaleTheme.Code.muted)
                 }
                 .buttonStyle(.plain)
                 .help(didCopy ? "Copied" : "Copy")
             }
             .padding(.horizontal, WhaleTheme.Spacing.md)
             .padding(.vertical, 8)
-            .background(Color.white.opacity(0.03))
+            .background(WhaleTheme.Code.header)
 
-            Divider().overlay(WhaleTheme.Color.border)
+            Divider().overlay(WhaleTheme.Code.border)
 
             ScrollView(.horizontal, showsIndicators: false) {
                 VStack(alignment: .leading, spacing: 0) {
@@ -79,9 +79,9 @@ struct DiffCodeBlock: View {
                 .padding(.vertical, 6)
             }
         }
-        .background(Color.black.opacity(0.28))
+        .background(WhaleTheme.Code.background)
         .clipShape(RoundedRectangle(cornerRadius: WhaleTheme.Radius.small))
-        .overlay(RoundedRectangle(cornerRadius: WhaleTheme.Radius.small).strokeBorder(WhaleTheme.Color.border, lineWidth: 1))
+        .overlay(RoundedRectangle(cornerRadius: WhaleTheme.Radius.small).strokeBorder(WhaleTheme.Code.border, lineWidth: 1))
         .textSelection(.enabled)
     }
 

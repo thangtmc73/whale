@@ -28,6 +28,7 @@ final class CodexCLIService: AgentCLIService {
         session: Session,
         model: ModelOption,
         permissionMode: PermissionMode,
+        onRawLine: @escaping (String) -> Void,
         onResolveCLISessionID: @escaping (String) -> Void
     ) -> AsyncThrowingStream<Step, Error> {
         AsyncThrowingStream { continuation in
@@ -57,6 +58,7 @@ final class CodexCLIService: AgentCLIService {
 
                     var didResolveSessionID = session.hasBeenStarted
                     for try await line in lineStream {
+                        onRawLine(line)
                         if !didResolveSessionID, let threadID = CodexEventParser.threadID(fromLine: line) {
                             didResolveSessionID = true
                             onResolveCLISessionID(threadID)

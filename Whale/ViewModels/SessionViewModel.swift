@@ -6,6 +6,11 @@ final class SessionViewModel {
     private(set) var turns: [Turn] = []
     private(set) var isStreaming: Bool = false
     private(set) var lastErrorMessage: String?
+    /// Raw, unparsed stdout lines from the underlying CLI — exactly what the process emitted, shown
+    /// verbatim in the sidebar terminal so the user can see what's actually running beneath the
+    /// formatted timeline. Capped to a rolling tail to keep memory/scroll bounded.
+    private(set) var rawLog: [String] = []
+    private static let rawLogLimit = 2000
     /// Unsent prompt text, kept per-session (not per-View) so it survives switching between
     /// sessions in the sidebar, and so a cross-provider switch can prefill the handoff text.
     var draftText: String = ""
@@ -48,7 +53,7 @@ final class SessionViewModel {
         ModelCatalog.options(for: session.provider)
     }
 
-    func send(prompt: String) {
+    func send(prompt: String, attachments: [URL] = []) {
         guard !prompt.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return }
         guard !isStreaming else { return }
 
@@ -61,7 +66,7 @@ final class SessionViewModel {
         session.lastActivityAt = .now
         onSessionUpdated(session)
 
-        let turn = Turn(promptText: prompt)
+        let turn = Turn(promptText: prompt, attachments: attachments)
         let turnIndex = turns.count
         turns.append(turn)
 
@@ -72,6 +77,9 @@ final class SessionViewModel {
                 session: session,
                 model: selectedModel,
                 permissionMode: .autoAccept,
+                onRawLine: { [weak self] line in
+                    self?.appendRawLog(line)
+                },
                 onResolveCLISessionID: { [weak self] resolvedID in
                     guard let self else { return }
                     self.session.cliSessionID = resolvedID
@@ -100,6 +108,16 @@ final class SessionViewModel {
         cliService.cancelCurrentTurn()
         streamTask?.cancel()
         isStreaming = false
+    }
+
+    /// Splits on embedded newlines (a single yielded line can carry several) and trims to the
+    /// rolling tail so a long-running session's terminal doesn't grow without bound.
+    private func appendRawLog(_ line: String) {
+        let pieces = line.split(separator: "\n", omittingEmptySubsequences: false).map(String.init)
+        rawLog.append(contentsOf: pieces)
+        if rawLog.count > Self.rawLogLimit {
+            rawLog.removeFirst(rawLog.count - Self.rawLogLimit)
+        }
     }
 
     /// Switching model within the same provider is zero-friction: just update selectedModel,

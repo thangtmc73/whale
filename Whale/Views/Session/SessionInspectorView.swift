@@ -1,79 +1,78 @@
 import SwiftUI
 
-/// The brief's "Right Panel": provider switcher, model info, session metadata — collapsible via
-/// the toolbar toggle in RootView. Read-only display except for the provider/model switch
-/// affordances, which simply call back into the same SessionViewModel logic the main toolbar uses.
-struct SessionInspectorView: View {
+/// The right panel — a live terminal showing the selected session's raw CLI output (exactly what
+/// the underlying process emitted: JSON events, shell commands, exit codes), so the user can see
+/// what's actually running beneath the formatted timeline. Styled with the shared `Code` palette
+/// so it reads as a real terminal slab in both light and dark appearance.
+///
+/// (Provider / model / session metadata used to live here; provider & model now live in the
+/// composer, so this panel is dedicated to the terminal.)
+struct SessionTerminalView: View {
     var viewModel: SessionViewModel
-    let gitBranch: String?
 
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: WhaleTheme.Spacing.lg) {
-                section("Provider") {
-                    HStack(spacing: WhaleTheme.Spacing.sm) {
-                        Image(systemName: viewModel.session.provider.iconName)
-                            .foregroundStyle(WhaleTheme.Color.accent)
-                        Text(viewModel.session.provider.displayName)
-                            .font(WhaleTheme.Typography.body())
-                            .foregroundStyle(WhaleTheme.Color.text)
-                    }
-                }
-
-                section("Model") {
-                    Text(viewModel.selectedModel.displayName)
-                        .font(WhaleTheme.Typography.body())
-                        .foregroundStyle(WhaleTheme.Color.text)
-                }
-
-                section("Session") {
-                    VStack(alignment: .leading, spacing: WhaleTheme.Spacing.xs) {
-                        metadataRow("Created", value: viewModel.session.createdAt.formatted(date: .abbreviated, time: .shortened))
-                        metadataRow("Last activity", value: viewModel.session.lastActivityAt.formatted(date: .abbreviated, time: .shortened))
-                        metadataRow("CLI session", value: viewModel.session.cliSessionID)
-                    }
-                }
-
-                if let gitBranch, !gitBranch.isEmpty {
-                    section("Git branch") {
-                        Text(gitBranch)
-                            .font(WhaleTheme.Typography.mono())
-                            .foregroundStyle(WhaleTheme.Color.secondary)
-                    }
+        VStack(spacing: 0) {
+            HStack(spacing: 6) {
+                Image(systemName: "terminal")
+                    .font(.system(size: 10, weight: .semibold))
+                Text("Terminal")
+                    .font(WhaleTheme.Typography.heading(12))
+                    .tracking(0.5)
+                Spacer()
+                if !viewModel.rawLog.isEmpty {
+                    Text("\(viewModel.rawLog.count) lines")
+                        .font(WhaleTheme.Typography.caption(10))
                 }
             }
-            .padding(WhaleTheme.Spacing.lg)
+            .foregroundStyle(WhaleTheme.Code.muted)
+            .padding(.horizontal, WhaleTheme.Spacing.md)
+            .padding(.vertical, WhaleTheme.Spacing.sm)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(WhaleTheme.Code.header)
+
+            Divider().overlay(WhaleTheme.Code.border)
+
+            terminalBody
         }
-        .background(WhaleTheme.Color.background)
-        .scrollContentBackground(.hidden)
+        .background(WhaleTheme.Code.background)
     }
 
     @ViewBuilder
-    private func section(_ title: String, @ViewBuilder content: () -> some View) -> some View {
-        VStack(alignment: .leading, spacing: WhaleTheme.Spacing.sm) {
-            Text(title.uppercased())
-                .font(.system(size: 10, weight: .semibold))
-                .foregroundStyle(WhaleTheme.Color.muted)
-                .tracking(0.5)
-            content()
-        }
-        .padding(WhaleTheme.Spacing.md)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .whaleSurface(cornerRadius: WhaleTheme.Radius.medium)
-    }
-
-    private func metadataRow(_ label: String, value: String) -> some View {
-        HStack(alignment: .top, spacing: WhaleTheme.Spacing.sm) {
-            Text(label)
-                .font(WhaleTheme.Typography.caption())
-                .foregroundStyle(WhaleTheme.Color.muted)
-                .frame(width: 90, alignment: .leading)
-            Text(value)
-                .font(WhaleTheme.Typography.caption())
-                .foregroundStyle(WhaleTheme.Color.text)
-                .textSelection(.enabled)
-                .lineLimit(1)
-                .truncationMode(.middle)
+    private var terminalBody: some View {
+        if viewModel.rawLog.isEmpty {
+            VStack {
+                Spacer()
+                Text("No output yet — send a prompt to see what runs.")
+                    .font(WhaleTheme.Typography.caption(11))
+                    .foregroundStyle(WhaleTheme.Code.muted)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, WhaleTheme.Spacing.md)
+                Spacer()
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+        } else {
+            ScrollViewReader { proxy in
+                ScrollView([.vertical, .horizontal]) {
+                    LazyVStack(alignment: .leading, spacing: 1) {
+                        ForEach(Array(viewModel.rawLog.enumerated()), id: \.offset) { index, line in
+                            Text(line.isEmpty ? " " : line)
+                                .font(WhaleTheme.Typography.mono(11))
+                                .foregroundStyle(WhaleTheme.Code.text)
+                                .textSelection(.enabled)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .id(index)
+                        }
+                        Color.clear.frame(height: 1).id("term-bottom")
+                    }
+                    .padding(.horizontal, WhaleTheme.Spacing.md)
+                    .padding(.vertical, WhaleTheme.Spacing.sm)
+                }
+                .onChange(of: viewModel.rawLog.count) {
+                    withAnimation(WhaleTheme.Motion.fast) {
+                        proxy.scrollTo("term-bottom", anchor: .bottom)
+                    }
+                }
+            }
         }
     }
 }

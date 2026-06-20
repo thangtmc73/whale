@@ -22,7 +22,7 @@ struct ProcessingIndicatorView: View {
                         )
                 }
             }
-            Text("Whale is working…")
+            Text("Whale is responding...")
                 .font(WhaleTheme.Typography.caption(11))
                 .foregroundStyle(WhaleTheme.Color.muted)
         }
